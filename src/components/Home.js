@@ -1,111 +1,75 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios';
-class Home extends Component{ 
+import Search from "./app/Search";
+import Sidebar from "./app/Sidebar";
+import Card from "./app/Card";
+import api from '../api';
+
+class Home extends Component {
     state = {
-        charged : false,
-        categories : null,
-        apis : null,
+        charged: false,
+        categories: null,
+        apis: null,
         health: false
     }
     componentDidMount = () => {
-        this.getCategories("https://api.publicapis.org/categories")
-        this.getEntries("https://api.publicapis.org/entries")
-        this.getHealth("https://api.publicapis.org/health")
-    }
-
-    getCategories = (url) => {
-        axios.get(url).then((res) => {
-            this.setState({categories : res.data, charged : true});
-        }).catch((err) => { console.log(err)})
-    }
-
-    getEntries = (url) => {
-        axios.get(url).then((res) => {
-            this.setState({apis : res.data.entries, charged : true});
-        }).catch((err) => { console.log(err)})
-    }
-
-    getHealth = (url) => {
-        axios.get(url).then((res) => {
-            this.setState({health : res.data.alive});
-        }).catch((err) => { console.log(err)})
-    }
+        api.get("https://api.publicapis.org/categories").then(res => {
+            this.setState({categories: res.data, charged: true});
+        });
+        api.get("https://api.publicapis.org/entries").then(res => {
+            this.setState({apis: res.data.entries, charged: true});
+        });
+        api.get("https://api.publicapis.org/health").then(res => {
+            this.setState({health: res.data.alive});
+        });
+    };
 
     onChange = (event) => {
         this.updateApi(event.target.value);
-    }
+    };
 
     updateApi = (search) => {
-        var url = 'https://api.publicapis.org/entries?title='+ search;
-        this.getEntries(url);
-    }
+        let url = 'https://api.publicapis.org/entries?title=' + search;
+        api.get(url).then(res => {
+            this.setState({apis: res.data.entries, charged: true});
+        });
+    };
 
     choseCategories = (categorie) => {
-        var indexOf = categorie.search("&");
-        var search = null;
-        if(indexOf > 1){
+        console.log(categorie)
+        let indexOf = categorie.search("&");
+        let search = null;
+        if (indexOf > 1) {
             search = categorie.substr(0, indexOf);
         }
-        else{
+        else {
             search = categorie;
         }
-        var url = 'https://api.publicapis.org/entries?category='+ search;
-        this.getEntries(url)
+        let url = 'https://api.publicapis.org/entries?category=' + search;
+        console.log(url);
+        api.get(url).then(res => {
+            this.setState({apis: res.data.entries, charged: true});
+        })
     }
 
+    render() {
 
-    render() {
-        
-        if (this.state.categories != null) {
-            var categoriesList = this.state.categories.map((categorie, index) => 
-                <li className="nav-link text-center pb-0" key={index}><a onClick={() => this.choseCategories(categorie)} className="cursor">{categorie}</a></li>
-            );
-        }
-        if (this.state.apis != null) {
-            var apiList = this.state.apis.map((api, index) => 
-                <div key={index} className="col mb-3">
-                    <div className="card">
-                        <div className="card-body px-3">
-                            <h5 className="card-title">{api.API}</h5>
-                            <h6 className="card-subtitle mb-2 text-muted">Https : {api.HTTPS ? '✅' : '❌'}</h6>        
-                            <p className="card-text">{api.Description}</p>
-                            <h6 className="card-subtitle mb-2 ">Categories : {api.Category}</h6>
-                            <a href={api.Link} target="_blank" className="card-link">Voir l'api</a>
+        return (
+            <div className="pt-0 home-section section">
+                <div className="row">
+                    <div className="col-md-2">
+                        <div className="nav">
+                            <Sidebar choseCategories={this.choseCategories.bind(this)} categories={this.state.categories}/>
                         </div>
                     </div>
-                </div>
-            );
-        }
-
-        /*if(this.state.health === true){
-            var inLife = (
-                <div className="ml-3">❤️</div>
-            );
-        }else{
-            var inLife = (
-                <div className="ml-3" >💔</div>
-            );
-        }*/
-        
-        return (
-            <div className="pt-0 home-section container section">
-                <div className="row mt-3 mb-3">
-                        <h1 className="text-center w-100 d-flex align-items-center justify-content-center">Search for a api</h1>
-                        <input type="text" name="search"  className="form-control" onChange={this.onChange} />
-                </div>
-                <div className="row">
-                    <div className="col-md-12 flex-column d-flex justify-content-start align-items-center">
-                        <h1 className="">Categories</h1>
-                        <ul className="row p-0 content-cat">
-                            {categoriesList}
-                        </ul>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12 d-flex flex-column justify-content-start align-items-center">
-                        <h1  className="mb-4">Listes de toutes les apis</h1>
-                        <div className="row">
-                            {apiList}
+                    <div className="col-md-8 content">
+                        <div className=" offset-md-2">
+                            <div className="">
+                                <Search onChange={this.onChange.bind(this)}/>
+                            </div>
+                            <div className="row scrolling-zone">
+                                <Card apis={this.state.apis}/>
+                            </div>
                         </div>
                     </div>
                 </div>
