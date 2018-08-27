@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../css/app.css';
+import '../../css/index.css';
 const Layout = (props) => (
     <div>
         {props.children}

@@ -12,7 +12,9 @@ class Home extends Component {
         apis: null,
         health: false
     }
-    componentDidMount = () => {
+
+
+    componentDidMount() {
         api.get("https://api.publicapis.org/categories").then(res => {
             this.setState({categories: res.data, charged: true});
         });
@@ -36,7 +38,6 @@ class Home extends Component {
     };
 
     choseCategories = (categorie) => {
-        console.log(categorie)
         let indexOf = categorie.search("&");
         let search = null;
         if (indexOf > 1) {
@@ -46,32 +47,39 @@ class Home extends Component {
             search = categorie;
         }
         let url = 'https://api.publicapis.org/entries?category=' + search;
-        console.log(url);
         api.get(url).then(res => {
-            this.setState({apis: res.data.entries, charged: true});
+            this.setState({apis: res.data.entries});
         })
     }
 
     render() {
-
         return (
             <div className="pt-0 home-section section">
                 <div className="row">
                     <div className="col-md-2">
                         <div className="nav">
-                            <Sidebar choseCategories={this.choseCategories.bind(this)} categories={this.state.categories}/>
+                            <Sidebar choseCategories={this.choseCategories.bind(this)}
+                                     categories={this.state.categories}/>
                         </div>
                     </div>
-                    <div className="col-md-8 content">
-                        <div className=" offset-md-2">
-                            <div className="">
-                                <Search onChange={this.onChange.bind(this)}/>
+                    {this.state.charged ? (
+                        <div className="col-md-8 content">
+                            <div className="offset-md-2">
+                                <div>
+                                    <div className="">
+                                        <Search onChange={this.onChange.bind(this)}/>
+                                    </div>
+                                    <div className="row scrolling-zone">
+                                        <Card apis={this.state.apis}/>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="row scrolling-zone">
-                                <Card apis={this.state.apis}/>
-                            </div>
+
                         </div>
-                    </div>
+                    ) : (
+                        <div>Loader
+                        </div>
+                    )}
                 </div>
             </div>
         );
