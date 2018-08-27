@@ -1,13 +1,7 @@
 import React, {Component} from 'react';
 
 class Card extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-
     render() {
-
         let apiList;
         if (this.props.apis != null) {
             apiList = this.props.apis.map((api, index) =>
@@ -28,7 +22,6 @@ class Card extends Component {
                 </div>
             );
         }
-
         return (
             <div>
                 <div className="col-md-12 d-flex flex-column justify-content-start align-items-center content-card">

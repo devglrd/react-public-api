@@ -1,11 +1,6 @@
 import React, {Component} from 'react';
 
 class Sidebar extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-
     render() {
         let categoriesList;
         if (this.props.categories != null) {
